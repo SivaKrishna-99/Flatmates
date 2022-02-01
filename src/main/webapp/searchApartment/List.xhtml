@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Dishang Rajendra Valotia on 2021.3.12
+  - Copyright © 2021 Dishang Rajendra Valotia. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<!-- Do not enter tags before the composition line since they are ignored by JSF -->
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Search Apartments" />
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+
+        <!-- In case of JSF validation error, set 'selected' to null in apartmentController -->
+        <c:if test="#{facesContext.validationFailed}">
+            ${apartmentSearchController.unselect()}
+        </c:if>
+
+        <!-- Set 'selected' to null in apartmentSearchController when the user refreshes / reloads this JSF page -->
+        <f:metadata>
+            <f:viewAction action="#{apartmentSearchController.unselect()}" rendered="#{facesContext.postBack}" />
+        </f:metadata>
+
+        <div align="center" style="width:97%">
+
+            <h:form id="apartmentSearchForm">
+                <p:panel header="Search Apartments">
+
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <p:accordionPanel id="filterAccordionPanel">
+                                <p:tab title="Filter">
+                                    <!-- SEARCH BOX -->
+                                    <p:inputText id="searchString" value="#{apartmentSearchController.name}"
+                                                 placeholder="Search Name">
+
+                                    </p:inputText>
+
+                                    <span>&nbsp;</span>
+
+
+                                    <!-- MINIMUM RENT BOX -->
+                                    <p:inputNumber id="minRent" class="dataFields" value="#{apartmentSearchController.minRent}"
+                                                   minValue="0" decimalPlaces="0" maxValue="100000000" symbol="$">
+                                        <p:watermark for="minRent" value="Min Rent" />
+                                    </p:inputNumber>
+
+                                    <span>&nbsp;</span>
+
+                                    <!-- MAXIMUM RENT BOX -->
+                                    <p:inputNumber id="maxRent" class="dataFields" value="#{apartmentSearchController.maxRent}"
+                                                   minValue="0" decimalPlaces="0" maxValue="100000000" symbol="$">
+                                        <p:watermark for="maxRent" value="Max Rent" />
+                                    </p:inputNumber>
+
+                                    <span>&nbsp;</span>
+
+                                    <!-- MINIMUM NUMBER OF BEDS BOX -->
+                                    <p:inputNumber id="minBeds" class="dataFields" value="#{apartmentSearchController.minBeds}"
+                                                   minValue="0" decimalPlaces="0" maxValue="100">
+                                        <p:watermark for="minBeds" value="Min Number of Beds" />
+                                    </p:inputNumber>
+
+                                    <span>&nbsp;</span>
+
+                                    <!-- MAXIMUM NUMBER OF BEDS BOX -->
+                                    <p:inputNumber id="maxBeds" class="dataFields" value="#{apartmentSearchController.maxBeds}"
+                                                   minValue="0" decimalPlaces="0" maxValue="100">
+                                        <p:watermark for="maxBeds" value="Max Number of Beds" />
+                                    </p:inputNumber>
+
+                                    <span>&nbsp;</span>
+
+                                    <!--  NUMBER OF BATHROOMS BOX -->
+                                    <p:inputNumber id="numBaths" class="dataFields" value="#{apartmentSearchController.numBaths}"
+                                                   minValue="0" decimalPlaces="0" maxValue="100" symbol="+" symbolPosition="suffix">
+                                        <p:watermark for="numBaths" value="Number of Bathrooms" />
+                                    </p:inputNumber>
+
+                                    <br/>
+
+                                    <!-- SEARCH button -->
+                                    <p:commandButton value="Search" icon="fas fa-search" ajax="false"
+                                                     action="#{apartmentSearchController.search()}" />
+                                    &nbsp;
+                                    <!-- Clear button -->
+                                    <p:commandButton value="Clear" icon="fas fa-undo"
+                                                     update=":apartmentSearchForm" immediate="true"
+                                                     actionListener="#{apartmentSearchController.clear()}">
+                                        <p:resetInput target="apartmentSearchForm" />
+                                    </p:commandButton>
+                                </p:tab>
+                            </p:accordionPanel>
+                        </div>
+
+
+                        <div class="ui-g-12">
+                            <p:dataTable id="datalist" value="#{apartmentSearchController.searchResults}" var="item"
+                                 selectionMode="single" selection="#{apartmentSearchController.selected}"
+                                 reflow="true"
+                                 paginator="true"
+                                 rowKey="#{item.id}"
+                                 rows="10"
+                                 rowsPerPageTemplate="5,10,20,30,50,70,90"
+                                 class="dataTable"
+                            >
+
+                            <p:ajax event="rowSelect"   update="viewButton"/>
+                            <p:ajax event="rowUnselect" update="viewButton"/>
+
+                            <!--
+                            Clicking the header of a column with 'sortBy' redisplays the table with that
+                            column sorted in alphabetical order A to Z or numerically in ascending order.
+                            Clicking it again reverses the order to Z to A or numerically in descending order.
+                            -->
+
+                                <!--
+                                ************************
+                                *    Apartment Id   *
+                                ************************
+                                -->
+                                <p:column headerText="Id" style="width:20px;" exportFunction="#{apartmentSearchController.convertIntToString(item.id)}">
+                                    <div align="center">
+                                        <h:outputText class="inputTextField" value="#{item.id}"/>
+                                    </div>
+                                </p:column>
+
+                                <!--
+                                ***************************
+                                *    Apartment Name   *
+                                ***************************
+                                -->
+                                <p:column sortBy="#{item.name}" exportFunction="#{item.getName()}" headerText="Apartment Name" style="width:100px;">
+                                    <h:outputText class="inputTextField" value="#{item.name}"/>
+                                </p:column>
+
+
+                                <!--
+                              ***************************
+                              *    Rent Per Month   *
+                              ***************************
+                              -->
+                                <p:column sortBy="#{item.rent}" exportFunction="#{apartmentSearchController.convertIntToString(item.rent)}" headerText="Rent Per Month($):" style="width:100px;">
+                                    <h:outputText class="inputTextField" value="#{item.rent}">
+                                        <f:convertNumber type="number" groupingUsed="true" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <!--
+                              ***************************
+                              *    Number of Bedrooms   *
+                              ***************************
+                              -->
+                                <p:column sortBy="#{item.numBed}" exportFunction="#{apartmentSearchController.convertIntToString(item.numBed)}" headerText="Number of Bedrooms" style="width:100px;">
+                                    <h:outputText class="inputTextField" value="#{item.numBed}"/>
+                                </p:column>
+
+                                <!--
+                            ***************************
+                            *    Number of Bathrooms  *
+                            ***************************
+                            -->
+                                <p:column sortBy="#{item.numBath}" exportFunction="#{apartmentSearchController.convertIntToString(item.numBath)}" headerText="Number of Bathrooms" style="width:100px;">
+                                    <h:outputText class="inputTextField" value="#{item.numBath}"/>
+                                </p:column>
+
+                                <!--
+                               *************************
+                               *   Start Date  *
+                               *************************
+                               -->
+                                <p:column sortBy="#{item.startDate}" exportFunction="#{item.getStartDate().toString()}" headerText="Start Date "
+                                          style="text-align: center; width:100px;">
+                                    <h:outputText class="inputTextField" value="#{item.startDate}">
+                                        <!-- Convert Date field into user friendly format rather than printing a raw date like 2015-08-26 00:00:00.0-->
+                                        <f:convertDateTime pattern="MM/dd/yyyy" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <!--
+                               *************************
+                               *   End Date  *
+                               *************************
+                               -->
+                                <p:column sortBy="#{item.endDate}" exportFunction="#{item.getEndDate().toString()}" headerText="End Date "
+                                          style="text-align: center; width:100px;">
+                                    <h:outputText class="inputTextField" value="#{item.endDate}">
+                                        <!-- Convert Date field into user friendly format rather than printing a raw date like 2015-08-26 00:00:00.0-->
+                                        <f:convertDateTime pattern="MM/dd/yyyy" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <!--
+                               *************************
+                               *   Date Entered  *
+                               *************************
+                               -->
+                                <p:column sortBy="#{item.dateEntered}" headerText="Date Entered" exportFunction="#{item.getDateEntered().toString()}"
+                                          style="text-align: center; width:100px;">
+                                    <h:outputText class="inputTextField" value="#{item.dateEntered}">
+                                        <!-- Convert Date field into user friendly format rather than printing a raw date like 2015-08-26 00:00:00.0-->
+                                        <f:convertDateTime pattern="MM/dd/yyyy" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <br /><br />
+
+                                <!--
+                            The "footer" facet is defined for p:dataTable. See PrimeFaces User Guide.
+                            -->
+                            <f:facet name="footer">
+                                <!-- VIEW button -->
+                                <p:commandButton id="viewButton" icon="fas fa-eye" value="View"
+                                                 action="/searchApartment/View?faces-redirect=true"
+                                                 disabled="#{empty apartmentSearchController.selected}"/>
+                            </f:facet>
+
+                        </p:dataTable>
+
+                        <p:panelGrid columns="2">
+                            <!--
+                            ================================================
+                            EXPORT ALL DATA as Excel, PDF, CSV, XML, or JSON
+                            ================================================
+                            -->
+                            <p:panel header="Export All Data">
+                                <h:commandLink>
+                                    <p:graphicImage value="#{resource['images:exportIcons/xlsExport.png']}" width="40" />
+                                    <!--
+                                    PrimeFaces p:dataExporter uses poi-3.15.jar for exporting into Microsoft documents.
+                                    poi-3.15.jar must be added to the Libraries folder.
+                                    -->
+                                    <p:dataExporter type="xls" target="datalist" fileName="Apartments" />
+                                </h:commandLink>
+                                &nbsp;
+                                <h:commandLink>
+                                    <p:graphicImage value="#{resource['images:exportIcons/pdfExport.png']}" width="40" />
+                                    <!--
+                                    PrimeFaces p:dataExporter uses itext-2.1.7.jar for exporting into PDF documents.
+                                    itext-2.1.7.jar must be added to the Libraries folder.
+                                    -->
+                                    <p:dataExporter type="pdf" target="datalist" fileName="Apartments"/>
+                                </h:commandLink>
+                                &nbsp;
+                                <h:commandLink>
+                                    <p:graphicImage value="#{resource['images:exportIcons/csvExport.png']}" width="40" />
+                                    <!--
+                                    PrimeFaces p:dataExporter uses poi-3.15.jar for exporting into Microsoft documents.
+                                    poi-3.15.jar must be added to the Libraries folder.
+                                    -->
+                                    <p:dataExporter type="csv" target="datalist" fileName="Apartments" />
+                                </h:commandLink>
+                                &nbsp;
+                            </p:panel>
+
+                            <!--
+                            ===========================================
+                            EXPORT PAGE DATA as Excel, PDF, CSV, or XML
+                            ===========================================
+                            -->
+                            <p:panel header="Export Only Shown Page Data">
+                                <h:commandLink>
+                                    <p:graphicImage value="#{resource['images:exportIcons/xlsExport.png']}" width="40" />
+                                    <!--
+                                    PrimeFaces p:dataExporter uses poi-3.15.jar for exporting into Microsoft documents.
+                                    poi-3.15.jar must be added to the Libraries folder.
+                                    -->
+                                    <p:dataExporter type="xls" target="datalist" fileName="Apartments-Page" pageOnly="true" />
+                                </h:commandLink>
+                                &nbsp;
+                                <h:commandLink>
+                                    <p:graphicImage value="#{resource['images:exportIcons/pdfExport.png']}" width="40" />
+                                    <!--
+                                    PrimeFaces p:dataExporter uses itext-2.1.7.jar for exporting into PDF documents.
+                                    itext-2.1.7.jar must be added to the Libraries folder.
+                                    -->
+                                    <p:dataExporter type="pdf" target="datalist" fileName="Apartments-Page" pageOnly="true" />
+                                </h:commandLink>
+                                &nbsp;
+                                <h:commandLink>
+                                    <p:graphicImage value="#{resource['images:exportIcons/csvExport.png']}" width="40" />
+                                    <!--
+                                    PrimeFaces p:dataExporter uses poi-3.15.jar for exporting into Microsoft documents.
+                                    poi-3.15.jar must be added to the Libraries folder.
+                                    -->
+                                    <p:dataExporter type="csv" target="datalist" fileName="Apartments-Page" pageOnly="true" />
+                                </h:commandLink>
+                                
+                            </p:panel>
+                        </p:panelGrid>
+                        </div>
+                    </div>
+                </p:panel>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>
+<!-- Do not enter tags after the composition line since they are ignored by JSF -->
+
+</html>

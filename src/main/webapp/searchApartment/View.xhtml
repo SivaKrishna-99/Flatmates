@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Dishang, Siva on 2021.04.10
+  - Copyright © 2021 Dishang, Siva. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<!-- Do not enter tags before the composition line since they are ignored by JSF -->
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="View Apartment" />
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+
+        <h:form id="ApartmentSearchViewForm" class="ui-datatable-data">
+
+            <div align="center">
+                <h:panelGroup id="display">
+                    <h:inputHidden id="address" value="#{apartmentSearchController.selected.address}" />
+
+                    <c:choose>
+                        <c:when test="#{apartmentController.getApartmentPhotoList(apartmentSearchController.selected).size() > 1}">
+                            <p:galleria value="#{apartmentController.getApartmentPhotoList(apartmentSearchController.selected)}" var="image" effect="slide" effectDuration="1000" panelWidth="500" panelHeight="313">
+                                <p:graphicImage value="#{image.getFileUrl()}" alt="#{image.getFileUrl()}" width="500" height="313"/>
+                            </p:galleria>
+                        </c:when>
+                        <c:otherwise>
+                            <h:graphicImage value="#{apartmentController.getApartmentFirstPhoto(apartmentSearchController.selected.id)}"
+                                            style="width:300px" />
+                        </c:otherwise>
+                    </c:choose>
+
+                    <br /><br />
+                    <div class="ui-g">
+                        <div class="ui-g-4" align="center">
+                            <!-- WalkScore widget goes here-->
+                            <div id='ws-walkscore-tile'></div>
+                        </div>
+                        <div class="ui-g-4">
+                            <p:panelGrid columns="2" columnClasses="panelGridColumn1, panelGridColumn2" style="max-width:600px"
+                                         rendered="#{apartmentSearchController.selected != null}">
+
+
+                                <h:outputText value="Apartment Name:"/>
+                                <h:outputText value="#{apartmentSearchController.selected.name}" style="white-space: normal"/>
+
+                                <h:outputText value="Apartment Description:"/>
+                                <h:outputText value="#{apartmentSearchController.selected.description}" style="white-space: normal"/>
+
+                                <h:outputText value="Address:"/>
+                                <h:outputText value="#{apartmentSearchController.selected.address}" style="white-space: normal"/>
+
+                                <h:outputText value="Number of Bedrooms:"/>
+                                <h:outputText value="#{apartmentSearchController.selected.numBed}" />
+
+                                <h:outputText value="Number of Bathrooms:"/>
+                                <h:outputText value="#{apartmentSearchController.selected.numBath}" />
+
+                                <h:outputText value="Monthly Rent($):"/>
+                                <h:outputText value="#{apartmentSearchController.selected.rent}" >
+                                    <f:convertNumber type="number" groupingUsed="true" />
+                                </h:outputText>
+
+                                <h:outputText value="Start Date:" />
+                                <h:outputText value="#{apartmentSearchController.selected.startDate}">
+                                    <f:convertDateTime type="date" pattern="MM-dd-yyyy"/>
+                                </h:outputText>
+
+                                <h:outputText value="End Date:" />
+                                <h:outputText value="#{apartmentSearchController.selected.endDate}">
+                                    <f:convertDateTime type="date" pattern="MM-dd-yyyy"/>
+                                </h:outputText>
+
+                                <h:outputText value="Phone:"/>
+                                <h:outputText value="#{apartmentSearchController.selected.phone}" />
+
+                                <h:outputText value="Apartment Complex Website:"/>
+                                <h:outputLink value="#{apartmentSearchController.selected.complexWebsite}" style="color:blue;white-space: normal" target="_blank">
+                                    <h:outputText value="#{apartmentSearchController.selected.complexWebsite}" />
+                                </h:outputLink>
+
+                            </p:panelGrid>
+                            <br/><br/>
+                            <h:panelGroup>
+                                <!-- Get Directions button -->
+                                <p:commandButton id="getDirections" value="Get Directions" action="/searchApartment/GetDirections"
+                                                 icon="fas fa-route" ajax="false" immediate="true" />&nbsp;
+                                <!-- VIEW RENTER button -->
+                                <c:if test="#{userController.isLoggedIn() == true}">
+                                    <p:commandButton id="viewRenterButton" icon="fas fa-user" value="View Renter"
+                                                     update=":RenterViewDlg" oncomplete="PF('RenterViewDialog').show()"/>&nbsp;
+                                </c:if>
+                                <c:if test="#{userController.isLoggedIn() == false}">
+                                    <p:commandButton id="signInButton" icon="fas fa-user" value="View Renter"
+                                                     update=":SignInDlg" oncomplete="PF('SignInDialog').show()"/>&nbsp;
+                                </c:if>
+
+                                <!-- GO BACK button -->
+                                <p:commandButton id="backButton" value="Go Back" action="/searchApartment/List?faces-redirect=true"
+                                                 icon="fas fa-arrow-left" ajax="false" immediate="true" />
+
+                            </h:panelGroup>
+                        </div>
+                        <div class="ui-g-4" align="left">
+                            <!--
+                            p:gmap is a map component integrated with Google Maps JavaScript API.
+                            See PrimeFaces User Guide for its documentation.
+
+                            You must register as Google developer and obtain an API key to use p:gmap
+                            by following the instructions in siteTemplate.xhtml
+                            -->
+                            <p:gmap center="#{apartmentSearchController.selected.getLatLong()}"
+                                    zoom="15" type="roadmap" model="#{apartmentSearchController.mapModel}"
+                                    style="width:95%;height:400px" />
+                            <br/>
+                        </div>
+                    </div>
+
+                </h:panelGroup>
+
+                <br /><br />
+            </div>
+        </h:form>
+
+        <!-- Clicking the View button when signed in displays the included UserDetail.xhtml file in a dialog window on top of this page. -->
+        <ui:include src="/userAccount/UserDetail.xhtml"/>
+
+        <!-- Clicking the View button when not signed in displays the included SignInDialog.xhtml file in a dialog window on top of this page. -->
+        <ui:include src="/SignInDialog.xhtml"/>
+
+        <!-- Load WalkScore widget-->
+        <script type='text/javascript'>
+            var ws_wsid = 'ddc71ae0ce1cf730538b5deb58e98d06';
+            var ws_format = 'tall';
+            var ws_width = '400';
+            var ws_height = '500';
+            var ws_address = document.getElementById('ApartmentSearchViewForm:address').value;
+        </script>
+        <script type='text/javascript' src='http://www.walkscore.com/tile/show-walkscore-tile.php'></script>
+    </ui:define>
+
+</ui:composition>
+<!-- Do not enter tags after the composition line since they are ignored by JSF -->
+
+
+</html>

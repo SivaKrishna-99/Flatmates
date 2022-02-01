@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Dishang, Siva on 2021.04.10
+  - Copyright © 2021 Dishang, Siva. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<!-- Do not enter tags before the composition line since they are ignored by JSF -->
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Get Directions" />
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+
+        <h:form id="ApartmentGetDirectionsForm" class="ui-datatable-data">
+
+            <div align="center">
+                <h:panelGroup id="display">
+                    <p:panelGrid columns="3" columnClasses="panelGridColumn1, panelGridColumn2, panelGridColumn2" class="borderless" style="max-width:650px">
+
+
+                        <p:outputLabel value="From Address:" for="fromAddress" />
+
+                        <p:inputTextarea id="fromAddress" value="#{apartmentSearchController.fromAddress}" required="true" class="inputTextField"
+                                         placeholder="Enter Apartment Address"
+                                         maxlength="1000" autoResize="true" requiredMessage="The Address field is required." >
+                        </p:inputTextarea>
+
+                        <!-- GET CURRENT LOCATION button -->
+                        <p:commandButton icon="fas fa-search-location" type="button" value="&nbsp;Get Current Location" onclick="setStartToCurrent()"/>
+
+
+                        <p:outputLabel value="To Address:" for="toAddress" />
+
+                        <p:inputTextarea id="toAddress" value="#{apartmentSearchController.toAddress}" required="true" class="inputTextField"
+                                         placeholder="Enter Apartment Address"
+                                         maxlength="1000" autoResize="true" requiredMessage="The Address field is required." >
+                        </p:inputTextarea>
+
+                        <!-- GET CURRENT LOCATION button -->
+
+                        <p:commandButton icon="fas fa-search-location" type="button" value="&nbsp;Get Current Location" onclick="setEndToCurrent()"/>
+
+
+                    </p:panelGrid>
+
+                    <br/><br/>
+
+                    <span>Show Directions via:</span>
+
+                    <br/><br/>
+                    <!-- WALKING button -->
+                        <p:commandButton id="Walking" value="&nbsp;Walking" action="#{apartmentSearchController.directions('Walking')}"
+                                         icon="fas fa-walking" ajax="false"/>&nbsp;&nbsp;
+                    <!-- DRIVING button -->
+                        <p:commandButton id="Driving" value="&nbsp;Driving" action="#{apartmentSearchController.directions('Driving')}"
+                                         icon="fas fa-car" ajax="false" />&nbsp;&nbsp;
+                    <!-- BICYCLING button -->
+                        <p:commandButton id="Bicycling" value="&nbsp;Bicycling" action="#{apartmentSearchController.directions('Bicycling')}"
+                                         icon="fas fa-biking" ajax="false"/>&nbsp;&nbsp;
+                    <!-- TRANSIT button -->
+                        <p:commandButton id="Transit" value="&nbsp;Transit" action="#{apartmentSearchController.directions('Transit')}"
+                                         icon="fas fa-bus" ajax="false"/>&nbsp;&nbsp;
+
+                </h:panelGroup>
+
+                <br /><br />
+
+                <h:panelGroup>
+                    <!-- GO BACK button -->
+                    <p:commandButton id="backButton" value="Go Back" action="/searchApartment/View?faces-redirect=true"
+                                     icon="fas fa-arrow-left" ajax="false" immediate="true" />
+                </h:panelGroup>
+                <br /><br />
+            </div>
+        </h:form>
+
+        <script type="text/javascript">
+            // Set the geocoder variable up to be used by gmap.js
+            var geocoder = new google.maps.Geocoder();
+
+            function setStartToCurrent() {
+                getCurrentLocationAsAddress(function(address) {
+                    if(typeof address === 'undefined') {
+                        return;
+                    }
+                    document.getElementById('ApartmentGetDirectionsForm:fromAddress').value = address;
+                })
+            }
+
+            function setEndToCurrent() {
+                getCurrentLocationAsAddress(function(address) {
+                    if(typeof address === 'undefined') {
+                        return;
+                    }
+                    document.getElementById('ApartmentGetDirectionsForm:toAddress').value = address;
+                })
+            }
+</script>
+
+
+    </ui:define>
+
+</ui:composition>
+<!-- Do not enter tags after the composition line since they are ignored by JSF -->
+
+
+</html>
